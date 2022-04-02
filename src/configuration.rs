@@ -18,7 +18,7 @@ pub struct DatabaseSettings {
 }
 
 pub fn get_configuration() -> Result<Settings, ConfigError> {
-    let mut settings = Config::builder();
-    settings = settings.add_source(File::with_name("configuration"));
+    let mut settings = Config::default();
+    settings.merge(File::with_name("configuration"))?;
     settings.try_into()
 }
