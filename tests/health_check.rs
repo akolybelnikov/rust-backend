@@ -1,8 +1,10 @@
 use std::net::TcpListener;
+
 use reqwest::Response;
-use zero2prod::startup::run;
-use sqlx::{PgConnection, Connection, Row};
+use sqlx::{Connection, PgConnection};
+
 use zero2prod::configuration::get_configuration;
+use zero2prod::startup::run;
 
 /// Spin up an instance of the app and return its address
 fn spawn_app() -> String {

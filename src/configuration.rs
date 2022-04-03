@@ -1,6 +1,5 @@
+use config::{Config, ConfigError, File};
 use serde::Deserialize;
-use config::{ConfigError, Config, File};
-use std::convert::{TryFrom, TryInto};
 
 #[derive(Deserialize)]
 pub struct Settings {
