@@ -12,7 +12,7 @@ pub struct TestApp {
     pub db_pool: PgPool,
 }
 
-/// Spin up an instance of the app and return its address
+/// Spin up an instance of the app and return its address + a DB connection pool
 async fn spawn_app() -> TestApp {
     let listener = TcpListener::bind("127.0.0.1:0")
         .expect("Failed to bind random port.");
@@ -33,10 +33,12 @@ async fn spawn_app() -> TestApp {
     }
 }
 
+/// Dynamically create databases to use for test isolation
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
     let mut connection = PgConnection::connect(&config.connection_string_without_db())
         .await
         .expect("Failed to connect to Postgres");
+
     connection
         .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
         .await
@@ -45,10 +47,12 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
     let connection_pool = PgPool::connect(&config.connection_string())
         .await
         .expect("Failed to connect to Postgres.");
+
     sqlx::migrate!("./migrations")
         .run(&connection_pool)
         .await
         .expect("Failed to migrate database.");
+
     connection_pool
 }
 
