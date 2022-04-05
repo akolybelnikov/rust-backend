@@ -19,10 +19,12 @@ chrono = "0.4.15"
 config = { version = "0.11", default-features = false, features = ["yaml"] }
 once_cell = "1.10.0"
 reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls", "cookies"] }
+secrecy = { version = "0.8.0", features = ["serde"] }
 serde = "1.0.115"
 sqlx = { version = "0.5.5", default-features = false, features = ["runtime-actix-rustls", "macros", "postgres", "uuid", "chrono", "migrate", "offline"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tracing = { version = "0.1.32", features = ["log"] }
+tracing-actix-web = "0.5.1"
 tracing-bunyan-formatter = "0.3.2"
 tracing-log = "0.1.2"
 tracing-subscriber = { version = "0.3.10", features = ["registry", "env-filter"] }
