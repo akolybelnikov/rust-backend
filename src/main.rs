@@ -13,7 +13,10 @@ async fn main() -> std::io::Result<()> {
     init_subscriber(subscriber);
     // Get the config and configure the app
     let configuration = get_configuration().expect("Failed to read configuration");
-    let address = format!("{}:{}", configuration.application.host, configuration.application.port);
+    let address = format!(
+        "{}:{}",
+        configuration.application.host, configuration.application.port
+    );
     let listener = TcpListener::bind(address)?;
     // Set up DB pool
     let connection_pool = PgPoolOptions::new()

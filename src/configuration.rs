@@ -2,8 +2,8 @@ use config::{Config, ConfigError, File};
 use secrecy::{ExposeSecret, Secret};
 use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
-use sqlx::ConnectOptions;
 use sqlx::postgres::{PgConnectOptions, PgSslMode};
+use sqlx::ConnectOptions;
 
 #[derive(Deserialize)]
 pub struct Settings {
@@ -17,7 +17,6 @@ pub struct ApplicationSettings {
     pub port: u16,
     pub host: String,
 }
-
 
 #[derive(Deserialize)]
 pub struct DatabaseSettings {
@@ -45,7 +44,8 @@ pub fn get_configuration() -> Result<Settings, ConfigError> {
         .expect("Failed to parse APP_ENVIRONMENT");
 
     // Layer on the environment-specific values.
-    settings.merge(File::from(configuration_directory.join(environment.as_str())).required(true))?;
+    settings
+        .merge(File::from(configuration_directory.join(environment.as_str())).required(true))?;
 
     settings.merge(config::Environment::with_prefix("app").separator("__"))?;
 
@@ -74,7 +74,10 @@ impl TryFrom<String> for Environment {
         match s.to_lowercase().as_str() {
             "local" => Ok(Self::Local),
             "production" => Ok(Self::Production),
-            other => Err(format!("{} is not a supported environment. Use either 'local' or 'production'.", other)),
+            other => Err(format!(
+                "{} is not a supported environment. Use either 'local' or 'production'.",
+                other
+            )),
         }
     }
 }
