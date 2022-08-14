@@ -140,6 +140,7 @@ async fn subscribe_returns_400_when_data_is_missing() {
 #[tokio::test]
 async fn subscribe_returns_200_when_fields_are_present_but_empty() {
     let app = spawn_app().await;
+
     let test_cases = vec![
         ("name=&email=ursula_le_guin%40gmail.com", "empty name"),
         ("name=Ursula&email=", "empty email"),

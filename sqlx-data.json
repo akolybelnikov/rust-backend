@@ -1,5 +1,5 @@
 {
-  "db": "PostgreSQL",
+  "db": "newsletter",
   "4bd6bbade521cd577279e91d8a8b978748046beff031d153699b351089c3bf9b": {
     "describe": {
       "columns": [],
