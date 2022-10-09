@@ -1,5 +1,4 @@
 use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
-use actix_web::cookie::time::format_description::parse;
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use serde::Deserialize;
@@ -15,6 +14,7 @@ pub struct FormData {
 
 impl TryFrom<FormData> for NewSubscriber {
     type Error = String;
+
     fn try_from(form_data: FormData) -> Result<Self, Self::Error> {
         let email = SubscriberEmail::parse(form_data.email)?;
         let name = SubscriberName::parse(form_data.name)?;
