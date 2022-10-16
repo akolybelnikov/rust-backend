@@ -32,11 +32,11 @@ impl EmailClient {
     ) -> Result<(), reqwest::Error> {
         let url = Url::join(&self.base_url, "email").unwrap();
         let request_body = SendEmailRequest {
-            from: self.sender.as_ref().to_owned(),
-            to: recipient.as_ref().to_owned(),
-            subject: subject.to_owned(),
-            html_content: html_content.to_owned(),
-            text_content: text_content.to_owned(),
+            from: self.sender.as_ref(),
+            to: recipient.as_ref(),
+            subject,
+            html_content,
+            text_content,
         };
         let builder = self
             .http_client
@@ -53,12 +53,13 @@ impl EmailClient {
 }
 
 #[derive(serde::Serialize)]
-struct SendEmailRequest {
-    from: String,
-    to: String,
-    subject: String,
-    html_content: String,
-    text_content: String,
+#[serde(rename_all = "PascalCase")]
+struct SendEmailRequest<'a> {
+    from: &'a str,
+    to: &'a str,
+    subject: &'a str,
+    html_content: &'a str,
+    text_content: &'a str,
 }
 
 #[cfg(test)]
@@ -70,8 +71,25 @@ mod tests {
     use fake::{Fake, Faker};
     use reqwest::Url;
     use secrecy::Secret;
-    use wiremock::matchers::any;
-    use wiremock::{Mock, MockServer, ResponseTemplate};
+    use wiremock::matchers::{header, header_exists, method, path};
+    use wiremock::{Mock, MockServer, Request, ResponseTemplate};
+
+    struct SendEmailBodyMatcher;
+
+    impl wiremock::Match for SendEmailBodyMatcher {
+        fn matches(&self, request: &Request) -> bool {
+            let result: Result<serde_json::Value, _> = serde_json::from_slice(&request.body);
+            if let Ok(body) = result {
+                body.get("From").is_some()
+                    && body.get("To").is_some()
+                    && body.get("Subject").is_some()
+                    && body.get("HtmlContent").is_some()
+                    && body.get("TextContent").is_some()
+            } else {
+                false
+            }
+        }
+    }
 
     #[tokio::test]
     async fn send_email_fires_a_request_to_base_url() {
@@ -80,7 +98,11 @@ mod tests {
         let url = Url::parse(mock_server.uri().as_str()).unwrap();
         let email_client = EmailClient::new(url, sender, Secret::new(Faker.fake()));
 
-        Mock::given(any())
+        Mock::given(header_exists("X-Postmark-Server-Token"))
+            .and(header("Content-Type", "application/json"))
+            .and(path("/email"))
+            .and(method("POST"))
+            .and(SendEmailBodyMatcher)
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
             .mount(&mock_server)
