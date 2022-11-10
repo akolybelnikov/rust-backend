@@ -28,11 +28,14 @@ async fn main() -> std::io::Result<()> {
         .email_client
         .sender()
         .expect("Invalid sender email address");
+    let timeout = configuration.email_client.timeout();
+    let url = reqwest::Url::parse(configuration.email_client.base_url.as_str())
+        .expect("Invalid email service URL");
     let email_client = EmailClient::new(
-        reqwest::Url::parse(configuration.email_client.base_url.as_str())
-            .expect("Invalid email service URL"),
+        url.to_string(),
         sender_email,
         configuration.email_client.authorization_token,
+        timeout,
     );
     // Run the app and return the result
     run(listener, connection_pool, email_client)?.await
